@@ -4,7 +4,11 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Mime;
 using System.Runtime.Intrinsics.X86;
-
+/// <summary>
+/// Victor Weilemann
+/// BfArM - Bundesinstitut fuer Arzneimittel und Medizinprodukte
+/// 17.08.2020
+/// </summary>
 namespace Wetterfrosch
 {
     class Program
@@ -12,15 +16,13 @@ namespace Wetterfrosch
         static void Main(string[] args)
         {
             //Deklaration der benötigten Variablen            
-            int uhrzeit = 0, minute = 0, stunde = 0, tag = 1, monat = 1, jahr = 2020, auswahlEingabe = 0; // Soll später in Minuten hochgerechnet werden bis 1439
+            int uhrzeit = 0, minute = 0, stunde = 0, tag = 1, monat = 1, jahr = 2020, auswahlEingabe = 0, mintemp = -10, maxtemp = 40; // Soll später in Minuten hochgerechnet werden bis 1439
 
-            double temperatur = 0, mittelwertTag = 0, median, spannweite;// Als double deklariert, um Kommazahlen zu erlauben
+            double temperatur = 0, mittelwertTag = 0, median, spannweite, abweichung, summeAbweichung;// Als double deklariert, um Kommazahlen zu erlauben
             
             Random zufall = new Random();
             
             string beendigung = "";
-
-            //DateTime wetterfrosch1 = new DateTime(jahr, monat, tag, stunde, minute, 0);
 
             //Anlegen eines Arrays für die Uhrzeit und Temperaturwerte
             double[] tabelle = new double[1440];
@@ -28,7 +30,7 @@ namespace Wetterfrosch
 
             for (uhrzeit = 0; uhrzeit < tabelle.Length; uhrzeit++)
             {
-                temperatur = zufall.Next(-10, 40); // Es wurde eine Spanne von typischen europäischen Temperaturwerten gewählt
+                temperatur = zufall.Next(mintemp, maxtemp); // Es wurde eine Spanne von typischen europäischen Temperaturwerten gewählt
                 temperatur = temperatur + zufall.NextDouble();
                 tabelle[uhrzeit] = temperatur;
             }
@@ -43,6 +45,29 @@ namespace Wetterfrosch
                 mittelwertTag += tabelle[uhrzeit] / tabelle.Length;
             }
 
+            //Berechnung der mittleren Abweichung
+            
+            summeAbweichung = 0;
+
+            for (uhrzeit = 0; uhrzeit < tabelle.Length; uhrzeit++)
+            {
+                summeAbweichung += tabelle[uhrzeit] - mittelwertTag;
+            }
+
+            abweichung = summeAbweichung / tabelle.Length;
+
+            //Berechnung der Rangliste der Häufigkeit der Werte
+
+            int[] haeufigkeit = new int[maxtemp-mintemp+1];
+
+            for (uhrzeit =0; uhrzeit < tabelle.Length; uhrzeit++)
+            {
+                var wert = tabelle[uhrzeit];
+                var wertGerundet = (int)Math.Round(wert)-mintemp;
+                haeufigkeit[wertGerundet]++;
+            }
+
+            
 
             // Programmoberfläche mit Funktionen ausstatten
             do
@@ -60,32 +85,43 @@ namespace Wetterfrosch
                 Console.WriteLine("(0) BEENDIGUNG DES PROGRAMMS");
                 Console.WriteLine("Geben Sie nachfolgend eine der Optionen als Zahl ohne Klammer ein:");
                 
-                    auswahlEingabe = Int32.Parse(Console.ReadLine());
+
+                try
+                { 
+                auswahlEingabe = Int32.Parse(Console.ReadLine());
                 //auswahlEingabe = Convert.ToInt32(Console.ReadLine());
+                }
+                catch
+                {
+                    Console.Clear();
+                    Console.WriteLine("\nBitte geben Sie nur eine Zahl zwischen (0) und (8) ein!\n");
+                }
+                    
+
+
+
 
                 switch (auswahlEingabe)
                 {
-                    case 1:
-                        //double[] tabelle = new double[1440];
+                    case 1: //Ausgabe Temperatur bei Minutenwerte
+                        
 
                         for (uhrzeit = 0; uhrzeit < tabelle.Length; uhrzeit++)
                         {
                             Console.WriteLine();
                             Console.WriteLine("Die Temperatur betrug {0:F0}°C bei Minute {1}", tabelle[uhrzeit], uhrzeit);
                         }
-                        /*for (uhrzeit = 0; uhrzeit < tabelle.Length; uhrzeit++)
-                        {
-                            mittelwertTag += tabelle[uhrzeit] / tabelle.Length;
-                        }*/
+                        
                         Console.WriteLine("Der Mittelwert des Tages lag bei {0:F0}°C", mittelwertTag);
 
-                        Console.WriteLine("Möchten Sie eine weitere Aufgabe bearbeiten?");
+                        Console.WriteLine("\nMöchten Sie eine weitere Aufgabe bearbeiten?");
                         Console.WriteLine("Bitte antworten Sie mit (J)a oder (N)ein!");
                         Console.WriteLine("Antwort ohne Klammer angeben)");
                         beendigung = Console.ReadLine();
 
                         break;
-                    case 2:
+
+                    case 2: //Ausgabe Uhrzeit und Temperatur mit Nachkommastelle
 
                         for (uhrzeit = 0; uhrzeit < tabelle.Length; uhrzeit++)
                         {
@@ -95,83 +131,113 @@ namespace Wetterfrosch
                             Console.WriteLine();
                             Console.WriteLine("Die Temperatur um " + wetterfrosch1.ToString("HH:mm", CultureInfo.InvariantCulture) + " Uhr betrug {0:F1}°C", tabelle[uhrzeit]);
                         }
-                        /*for (uhrzeit = 0; uhrzeit < tabelle.Length; uhrzeit++)
-                        {
-                            mittelwertTag += tabelle[uhrzeit] / tabelle.Length;
-                        }*/
+                        
                         Console.WriteLine("Der Mittelwert des Tages lag bei {0:F1}°C", mittelwertTag);
 
-                        Console.WriteLine("Möchten Sie eine weitere Aufgabe bearbeiten?");
+                        Console.WriteLine("\nMöchten Sie eine weitere Aufgabe bearbeiten?");
                         Console.WriteLine("Bitte antworten Sie mit (J)a oder (N)ein!");
-                        Console.WriteLine("Antwort ohne Klammer angeben)");
+                        Console.WriteLine("Antwort ohne Klammer angeben\n");
                         beendigung = Console.ReadLine();
+
                         break;
-                    case 3:
+
+                    case 3: //Minimalwert
 
                         Console.WriteLine("\nDer niedrigste Temperaturwert lag bei {0:F1}°C\n", sortedTabelle[0]);
 
-                        Console.WriteLine("Möchten Sie eine weitere Aufgabe bearbeiten?");
+                        Console.WriteLine("\nMöchten Sie eine weitere Aufgabe bearbeiten?");
                         Console.WriteLine("Bitte antworten Sie mit (J)a oder (N)ein!");
-                        Console.WriteLine("Antwort ohne Klammer angeben)");
+                        Console.WriteLine("Antwort ohne Klammer angeben\n");
                         beendigung = Console.ReadLine();
+
                         break;
-                    case 4:
+
+                    case 4: // Maximalwert
 
                         Console.WriteLine("\nDer höchste Temperaturwert lag bei {0:F1}°C\n", sortedTabelle[1439]);
 
-                        Console.WriteLine("Möchten Sie eine weitere Aufgabe bearbeiten?");
+                        Console.WriteLine("\nMöchten Sie eine weitere Aufgabe bearbeiten?");
                         Console.WriteLine("Bitte antworten Sie mit (J)a oder (N)ein!");
-                        Console.WriteLine("Antwort ohne Klammer angeben)");
+                        Console.WriteLine("Antwort ohne Klammer angeben\n");
                         beendigung = Console.ReadLine();
+
                         break;
-                    case 5:
+
+                    case 5: // Median
 
                         median = sortedTabelle[(sortedTabelle.Length / 2)];
 
                         Console.WriteLine("\nDer Median liegt bei {0}°C \n", median);
 
-                        Console.WriteLine("Möchten Sie eine weitere Aufgabe bearbeiten?");
+                        Console.WriteLine("\nMöchten Sie eine weitere Aufgabe bearbeiten?");
                         Console.WriteLine("Bitte antworten Sie mit (J)a oder (N)ein!");
-                        Console.WriteLine("Antwort ohne Klammer angeben)");
+                        Console.WriteLine("Antwort ohne Klammer angeben\n");
                         beendigung = Console.ReadLine();
+
                         break;
-                    case 6:
+
+                    case 6: //Spannweite
 
                         spannweite = sortedTabelle[1439] - sortedTabelle[0];
 
                         Console.WriteLine("\nDie Spannweite beträgt {0:F1}°C.\n", spannweite);
 
-                        Console.WriteLine("Möchten Sie eine weitere Aufgabe bearbeiten?");
+                        Console.WriteLine("\nMöchten Sie eine weitere Aufgabe bearbeiten?");
                         Console.WriteLine("Bitte antworten Sie mit (J)a oder (N)ein!");
-                        Console.WriteLine("Antwort ohne Klammer angeben)");
+                        Console.WriteLine("Antwort ohne Klammer angeben\n");
                         beendigung = Console.ReadLine();
-                        break;
-                    case 7:
 
-                        Console.WriteLine("Möchten Sie eine weitere Aufgabe bearbeiten?");
-                        Console.WriteLine("Bitte antworten Sie mit (J)a oder (N)ein!");
-                        Console.WriteLine("Antwort ohne Klammer angeben)");
-                        beendigung = Console.ReadLine();
                         break;
-                    case 8:
 
-                        Console.WriteLine("Möchten Sie eine weitere Aufgabe bearbeiten?");
+                    case 7: //Mittlere Abweichung
+
+                        Console.WriteLine("Die mittlere Abweichung beträgt: {0} °C.", abweichung);
+
+                        Console.WriteLine("\nMöchten Sie eine weitere Aufgabe bearbeiten?");
                         Console.WriteLine("Bitte antworten Sie mit (J)a oder (N)ein!");
-                        Console.WriteLine("Antwort ohne Klammer angeben)");
+                        Console.WriteLine("Antwort ohne Klammer angeben\n");
                         beendigung = Console.ReadLine();
+
                         break;
+
+                    case 8: //Rangliste der Häufigkeit
+
+
+                        for (int i = 0; i < haeufigkeit.Length; i++)
+                        {
+                            Console.Write(mintemp+i + "°C\t" + haeufigkeit[i] +"\t");
+                            for (int j = 0; j < haeufigkeit[i]; j++)
+                            {
+                                Console.Write('|');
+                            }
+                            Console.Write("\r\n");
+                        }
+
+                        Console.WriteLine("\nMöchten Sie eine weitere Aufgabe bearbeiten?");
+                        Console.WriteLine("Bitte antworten Sie mit (J)a oder (N)ein!");
+                        Console.WriteLine("Antwort ohne Klammer angeben\n");
+                        beendigung = Console.ReadLine();
+
+                        break;
+
                     case 0:
-                        
-                        Console.WriteLine("Möchten Sie eine weitere Aufgabe bearbeiten?");
+
+                        Console.WriteLine("\nSie haben die (0) ausgewählt, mit der Sie das Programm beenden können!");
+                        Console.WriteLine("\nMöchten Sie eine weitere Aufgabe bearbeiten?");
                         Console.WriteLine("Bitte antworten Sie mit (J)a oder (N)ein!");
-                        Console.WriteLine("Antwort ohne Klammer angeben)");
+                        Console.WriteLine("Antwort ohne Klammer angeben\n");
                         beendigung = Console.ReadLine();
+
                         break;
+
                     default:
-                        Console.WriteLine("Möchten Sie eine weitere Aufgabe bearbeiten?");
+
+                        Console.WriteLine("\nBitte geben Sie nur eine Zahl zwischen (0) und (8) ein!");
+                        Console.WriteLine("\nMöchten Sie eine weitere Aufgabe bearbeiten?");
                         Console.WriteLine("Bitte antworten Sie mit (J)a oder (N)ein!");
-                        Console.WriteLine("Antwort ohne Klammer angeben)");
+                        Console.WriteLine("Antwort ohne Klammer angeben\n");
                         beendigung = Console.ReadLine();
+
                         break;
 
 
@@ -183,24 +249,8 @@ namespace Wetterfrosch
             Console.WriteLine("Danke, dass Sie Wetterfrosch benutzt haben. Auf Wiedersehen!");
 
             Console.ReadKey();
-
-            Console.ReadKey();
-            /*
-
-
-          
-            double[] sortedTabelle = (double[])tabelle.Clone();
-            System.Array.Sort(sortedTabelle);
-            foreach(var i in sortedTabelle)
-            {
-                Console.WriteLine();
-                Console.WriteLine(i);
-            }
-            */
+                      
             
-
-            
-            Console.ReadKey();
         }
     }
 }
