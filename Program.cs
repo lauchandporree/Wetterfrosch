@@ -85,11 +85,10 @@ namespace Wetterfrosch
                 Console.WriteLine("(0) BEENDIGUNG DES PROGRAMMS");
                 Console.WriteLine("Geben Sie nachfolgend eine der Optionen als Zahl ohne Klammer ein:");
                 
-
+                //Einfügen eines Try-Catch um Falscheingaben vorzubeugen
                 try
                 { 
                 auswahlEingabe = Int32.Parse(Console.ReadLine());
-                //auswahlEingabe = Convert.ToInt32(Console.ReadLine());
                 }
                 catch
                 {
@@ -220,7 +219,7 @@ namespace Wetterfrosch
 
                         break;
 
-                    case 0:
+                    case 0: //Beendigung des Programms
 
                         Console.WriteLine("\nSie haben die (0) ausgewählt, mit der Sie das Programm beenden können!");
                         Console.WriteLine("\nMöchten Sie eine weitere Aufgabe bearbeiten?");
@@ -230,7 +229,7 @@ namespace Wetterfrosch
 
                         break;
 
-                    default:
+                    default: // Falls eine Falscheingabe erfolgt, wird der Benutzer zurückgeleitet
 
                         Console.WriteLine("\nBitte geben Sie nur eine Zahl zwischen (0) und (8) ein!");
                         Console.WriteLine("\nMöchten Sie eine weitere Aufgabe bearbeiten?");
