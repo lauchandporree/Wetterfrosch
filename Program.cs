@@ -6,6 +6,7 @@ using System.Net.Mime;
 using System.Runtime.Intrinsics.X86;
 /// <summary>
 /// Victor Weilemann
+/// IS 119 - AWE - Kappel
 /// BfArM - Bundesinstitut fuer Arzneimittel und Medizinprodukte
 /// 17.08.2020
 /// </summary>
@@ -31,13 +32,13 @@ namespace Wetterfrosch
             for (uhrzeit = 0; uhrzeit < tabelle.Length; uhrzeit++)
             {
                 temperatur = zufall.Next(mintemp, maxtemp); // Es wurde eine Spanne von typischen europäischen Temperaturwerten gewählt
-                temperatur = temperatur + zufall.NextDouble();
+                temperatur = temperatur + zufall.NextDouble(); // Hinzufügen von Nachkommastellen
                 tabelle[uhrzeit] = temperatur;
             }
 
             //Sortierte Form des Arrays
             double[] sortedTabelle = (double[])tabelle.Clone();
-            System.Array.Sort(sortedTabelle);
+            System.Array.Sort(sortedTabelle); // Verwendung der Operation System.Array.Sort um die Tabelle zu sortieren
 
             //Berechnung des Mittelwerts
             for (uhrzeit = 0; uhrzeit < tabelle.Length; uhrzeit++)
@@ -85,7 +86,7 @@ namespace Wetterfrosch
                 Console.WriteLine("(0) BEENDIGUNG DES PROGRAMMS");
                 Console.WriteLine("Geben Sie nachfolgend eine der Optionen als Zahl ohne Klammer ein:");
                 
-                //Einfügen eines Try-Catch um Falscheingaben vorzubeugen
+                //Einfügen eines Try-Catch um ein Abbrechen bei Falscheingabe zu verhindern
                 try
                 { 
                 auswahlEingabe = Int32.Parse(Console.ReadLine());
@@ -126,7 +127,7 @@ namespace Wetterfrosch
                         {
                             stunde = uhrzeit / 60;
                             minute = uhrzeit % 60;
-                            DateTime wetterfrosch1 = new DateTime(jahr, monat, tag, stunde, minute, 0);
+                            DateTime wetterfrosch1 = new DateTime(jahr, monat, tag, stunde, minute, 0); // Verwendung der DateTime-Funktion, um eine genauere Ausgabe der Zeit zu ermöglichen
                             Console.WriteLine();
                             Console.WriteLine("Die Temperatur um " + wetterfrosch1.ToString("HH:mm", CultureInfo.InvariantCulture) + " Uhr betrug {0:F1}°C", tabelle[uhrzeit]);
                         }
@@ -201,11 +202,12 @@ namespace Wetterfrosch
 
                     case 8: //Rangliste der Häufigkeit
 
+                        Console.WriteLine("Die Rangliste der Häufigkeit sieht folgendermaßen aus:");
 
-                        for (int i = 0; i < haeufigkeit.Length; i++)
+                        for (int temperaturWert = 0; temperaturWert < haeufigkeit.Length; temperaturWert++)
                         {
-                            Console.Write(mintemp+i + "°C\t" + haeufigkeit[i] +"\t");
-                            for (int j = 0; j < haeufigkeit[i]; j++)
+                            Console.Write(mintemp+temperaturWert + "°C\t" + haeufigkeit[temperaturWert] +"\t");
+                            for (int anzahlTempWert = 0; anzahlTempWert < haeufigkeit[temperaturWert]; anzahlTempWert++)
                             {
                                 Console.Write('|');
                             }
@@ -242,10 +244,14 @@ namespace Wetterfrosch
 
                 }
             }
-            while (beendigung != "N") ;
+            while (beendigung != "N") ; // Solange kein N eingegeben wird, läuft die Aufgabe weiter
 
-            //Console.Clear();
-            Console.WriteLine("Danke, dass Sie Wetterfrosch benutzt haben. Auf Wiedersehen!");
+
+            // Optische Beendigung des Programms 
+            Console.Clear();
+            Console.WriteLine("\n############################################################");
+            Console.WriteLine("\nDanke, dass Sie Wetterfrosch benutzt haben. Auf Wiedersehen!\n");
+            Console.WriteLine("############################################################\n");
 
             Console.ReadKey();
                       
